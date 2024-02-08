@@ -1,4 +1,3 @@
-import GHC.Plugins (IsDoc(line))
 import Data.Char
 
 sumCalibrationVals :: String -> Int

@@ -1,6 +1,4 @@
 import Data.Char (isDigit)
-import GHC.Data.StringBuffer (StringBuffer(len))
-import Control.Applicative (Alternative(empty))
 
 data Parsed = N Int (Int, Int)
             | S Int
@@ -45,15 +43,15 @@ parseLine' i ns (c:s) | isDigit c = parseLine' (i+1) (c:ns) s
                       | null ns = S i : parseLine' (i+1) [] s
                       | otherwise = N (read $ reverse ns) (i - length ns, i-1) : S i : parseLine' (i+1) [] s
 
-interleave :: [a] -> [(a, a, a)]
-interleave [] = []
-interleave [a] = [(a, a, a)]
-interleave as@(a1:a2:as') = (a1, a1, a2) : interleave' as where
-  interleave' [a1, a2] = [(a1, a2, a1)]
-  interleave' (a1:a2:a3:as) = (a1, a2, a3) : interleave' (a2:a3:as)
+group :: [[a]] -> [([a], [a], [a])]
+group [] = []
+group [a] = [(a, a, [])]
+group as@(a1:a2:as') = ([], a1, a2) : group' as where
+  group' [a1, a2] = [(a1, a2, [])]
+  group' (a1:a2:a3:as) = (a1, a2, a3) : group' (a2:a3:as)
 
 main :: IO ()
 main = do
   s <- readFile "test_data"
-  print $ foldr (\(a, b, c) s -> s + sumPartNumber b a b c) 0 $ interleave $ parseLine <$> lines s
+  print $ foldr (\(a, b, c) s -> s + sumPartNumber b a b c) 0 $ group $ parseLine <$> lines s
 
